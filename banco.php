@@ -87,6 +87,28 @@ echo $usuario->getDni();
 echo "<br>";
 echo $usuario->getContrasena();
 echo "<br>";
+$usuario->setNombre("David");
+$usuario->setApellido("León");
+$usuario->setDireccion("calle verdadera 321");
+$usuario->setEmail("pues@si.es");
+$usuario->setConfirmacion("pues@no.es");
+$usuario->setDni("5574648r");
+$usuario->setConfirmacion("contrase");
+echo $usuario->getNombre();
+echo "<br>";
+echo $usuario->getApellido();
+echo "<br>";
+echo $usuario->getDireccion();
+echo "<br>";
+echo $usuario->getEmail();
+echo "<br>";
+echo $usuario->getConfirmacion();
+echo "<br>";
+echo $usuario->getDni();
+echo "<br>";
+echo $usuario->getContrasena();
+echo "<br>";
+
 echo "<br>";
 
 ?>
