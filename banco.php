@@ -41,6 +41,34 @@ class Usuario {
     public function getContrasena(){
         return $this->contrasena;
     }
+    public function setNombre($nombre){
+    $this->nombre = $nombre;
+
+    }
+    public function setApellido($apellido){
+    $this->apellido = $apellido;
+    }
+    
+    public function setDireccion($direccion){
+    $this->direccion = $direccion;
+
+    }
+    public function setEmail($email){
+    $this->email = $email;
+
+    }
+    public function setConfirmacion($confirmacion){
+    $this->confirmacion = $confirmacion;
+
+    }
+    public function setDni($dni){
+    $this->dni = $dni;
+    }
+    public function setContrasena($contrasena){
+    $this->contrasena = $contrasena;
+    }
+
+
 } 
 
 
