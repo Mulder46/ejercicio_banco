@@ -1,5 +1,5 @@
 <?php
-
+//Enrique Michael y David
 class Usuario {
     protected $nombre;
     protected $apellido;
