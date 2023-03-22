@@ -1,44 +1,53 @@
 <?php
-//Enrique Michael y David
+
 class Usuario {
-    protected $nombre;
-    protected $apellido;
-    protected $direccion;
-    protected $email;
-    protected $confirmacion;
-    protected $dni;
-    protected $contrasena;
+    protected $nombre="error";
+    protected $apellido="error";
+    protected $direccion="error";
+    protected $email="error";
+    protected $confirmacion="error";
+    protected $dni="error";
+    protected $contrasena="error";
     
-public function empiezaMayus($nombre){
+public function empiezaMayus($palabra){
     $ok=0;
-    if(ord($nombre[0])>=65 && ord($nombre[0])<=90 ){//empieza mayúsc ula
-        if( letras($nombre)){
-         $this->nombre = $nombre;
-        $ok=1;
+    if(ord($palabra[0])>=65 && ord($palabra[0])<=90 ){//empieza mayúsc ula
+        //echo "a";
+        if(self::todoLetras($palabra)){
+        //    echo "entro";
+            $ok=1;
         }
     }
     return $ok;
 }
+
 public function todoLetras($palabra){
     $error=0;
-    for($i=0;$i<strlen($palabra);$i++){ //seria mas eficiente con while pero empezamos con for       
-        if(!(ord($nombre[0])>=65 && ord($nombre[0])<=90 || ord($nombre[0])>=97 && ord($nombre[0])<=122) ){
+    $cont=0;
+    
+    while(!$error && $cont<strlen($palabra)){    
+        if(!(ord($palabra[0])>=65 && ord($palabra[0])<=90 || ord($palabra[0])>=97 && ord($palabra[0])<=122) ){
+            echo "ERROR: ".$palabra;
             $error=1;
         }
+        $cont++;
     }
-    return $error;
+    //echo $error;
+    return !$error;
 }
 public function todoNumero($cadena){
     $error=0;
     $i=0;
-    while(!$error || $i<strlen($cadena)){
-        if($cadena[$i]>=48 && $cadena[$i]<=57){
+    while(!$error && $i<strlen($cadena)){
+        if(ord($cadena[$i])>=48 && ord($cadena[$i])<=57){
             $i++;
+            
         }else{
             $error=1;
+           echo  "Error en DNI";
         }
     }
-    return $error;
+    return !$error;
 }
 public function contMayus($cadena){
     $cont=0;
@@ -52,19 +61,24 @@ public function contMayus($cadena){
 public function contMinus($cadena){
     $cont=0;
     for($i=0;$i<strlen($cadena);$i++){
+        
        if(ord($cadena[$i])>=97 && ord($cadena[$i])<=122){
+        
             $cont++;
        }
     }
+    
+
     return $cont;
 }
 public function contNum($cadena){
     $cont=0;
-    for($i=0;$i<strlen($cadena);$i++){
+    for($i=0;$i<strlen($cadena)-1;$i++){
         if(ord($cadena[$i])>=48 && ord($cadena[$i])<=57){
             $cont++;
         }
     }
+    
     return $cont;
 }
 public function contSig($cadena){
@@ -77,38 +91,77 @@ public function contSig($cadena){
     return $cont;
 }
 public function dnieOk($dni){
+    $ok=0;
     if(strlen($dni)==9){
-        if(todoLetras($dni[8])){
-            if(!todoNumero($dni)){
-                $this->dni = $dni;
+        if(self::todoLetras($dni[8])){
+            $nums=substr($dni, 0, -1);
+            if(self::todoNumero($nums)){
+                $ok=1;
+                
             }
         }
     }
+    return $ok;
 }
-    public function __construct($nombre,$apellido,$direccion,$email,$confirmacion,$dni,$contrasena){
+public function separarPalabras($palabra){
+    $caracteres = preg_split('/,/', $palabra);
+    return $caracteres;
+
+}
+public function calleBien($calle){
+    $ok=0;
+    $arrayCalle=self::separarPalabras($calle);
+    //dirección (con CP): el formato es tipo vía/nombre vía, número, resto de datos, código postal, población y país (se parados por comas).
+    if(count($arrayCalle)==6){      
+        if(self::todoLetras($arrayCalle[0])){//calle con letras?
+            if(self::todoNumero($arrayCalle[1])){//numero?
+                if(self::todoLetras($arrayCalle[2])){
+                    if(strlen($arrayCalle[3])==5 && self::todoNumero($arrayCalle[3])){ //pensando en cp español
+                        if(self::todoLetras($arrayCalle[4]) && self::empiezaMayus($arrayCalle[4])){ //poalbacion
+                            if(self::todoLetras($arrayCalle[5]) && self::empiezaMayus($arrayCalle[5])){//Pais
+                                $ok=1;
+                            }
+                        }
+
+                    }
+                }
+            
+            }
+        }
+        return $ok;
+    }
+
+}
+
+
+public function __construct($nombre="error",$apellido="error",$direccion="error",$email="error",$confirmacion="error",$dni="error",$contrasena="error"){
 //nombre: todos los nombres deben empezar por mayúscula
 // y el campo no admite número o símbolos, únicamente letra.
-       if(empiezaMayus($nombre)){
-            if(!(todoLetras($nombre))){ //si no dio error es que son letras to
-                $this->nombre = $nombre;
-            }
-       }
+    if(self::empiezaMayus($nombre)){
+        if(self::todoLetras($nombre)){ //si no dio error es que son letras to
+            $this->nombre = $nombre;
+        }
+    }
         //apellidos: todos los apellidos deben empezar por mayúsculas 
         //y el campo no admite números o símbolos.
-        if(empiezaMayus($apellido)){
-            if(!(todoLetras($apellido))){
+        if(self::empiezaMayus($apellido)){
+            if(self::todoLetras($apellido)){ //si no dio error es que son letras to
                 $this->apellido = $apellido;
             }
         }
         //formato tipo via /nombree via, nº , resto de datos, cp, poblacion y país (separados por ,)
-        $this->direccion = $direccion;
+        if(self::calleBien($direccion)){
+            $this->direccion = $direccion;
+        }
         //e mail y confirmación sean igual
         if($email==$confirmacion){
             $this->email = $email;
         }
         //$this->confirmacion = $confirmacion;
         //DNI valido 9caracteres (8numeros 1 letra)
-        
+        if(self::dnieOk($dni)){
+            $this->dni=$dni;
+        }
         /* 8 caracteres max 20 
         al menos:
         1 mayus 
@@ -117,10 +170,10 @@ public function dnieOk($dni){
         1 signo*/
         
         if(strlen($contrasena)>=8 && strlen($contrasena)<=20){
-            if(cantMayus($contrasena)>0){
-                if(cantMinus($contrasena)>0){
-                    if(contNum($cadena>1)){
-                        if(contSig($cadena)>0){
+            if(self::contMayus($contrasena)>0){
+                if(self::contMinus($contrasena)>0){
+                    if(self::contNum($cadena>1)){
+                        if(self::contSig($cadena)>0){
                             $this->contrasena = $contrasena;
                         }
                     }   
@@ -128,9 +181,19 @@ public function dnieOk($dni){
                 
             }
         }
-    }
+    } //fin CONSTRUCT
 
+
+    /*
+    *
+    *
+    *
+    * GETTERS
+    *
+    **
+    */
     public function getNombre(){
+        
         return $this->nombre;
 
     }
@@ -155,75 +218,101 @@ public function dnieOk($dni){
     public function getContrasena(){
         return $this->contrasena;
     }
+    /*
+    *
+    *
+    *SETTERS
+    *
+    *
+    */
     public function setNombre($nombre){
-        $this->nombre = $nombre;
-
+        //nombre: todos los nombres deben empezar por mayúscula
+// y el campo no admite número o símbolos, únicamente letra.
+        if(self::empiezaMayus($nombre)){
+            if(self::todoLetras($nombre)){ //si no dio error es que son letras to
+                $this->nombre = $nombre;
+            }
+        }
     }
+
     public function setApellido($apellido){
-        $this->apellido = $apellido;
+        if(self::empiezaMayus($apellido)){
+            if(self::todoLetras($apellido)){ //si no dio error es que son letras to
+                $this->apellido = $apellido;
+            }
+        }
     }
     
     public function setDireccion($direccion){
-        $this->direccion = $direccion;
-
+        if(self::calleBien($direccion)){
+            $this->direccion = $direccion;
+        }
     }
     public function setEmail($email){
         $this->email = $email;
-
     }
     /*public function setConfirmacion($confirmacion){
         $this->confirmacion = $confirmacion;
-
     }*/
     public function setDni($dni){
-        $this->dni = $dni;
+        if(self::dnieOk($dni)){
+            $this->dni=$dni;
+        }
     }
     public function setContrasena($contrasena){
-        $this->contrasena = $contrasena;
+        if(strlen($contrasena)>=8 && strlen($contrasena)<=20){
+            if(self::contMayus($contrasena)>0){
+                if(self::contMinus($contrasena)>0){
+                    if(self::contNum($contrasena)>1){
+                        if(self::contSig($contrasena)>0){
+                            $this->contrasena = $contrasena;
+                        }
+                    }   
+                }
+                
+            }
+        }
     }
 
 
 } 
 
-
-
-$usuario = new Usuario("Michael","Ferreduela","calle falsa 123","quientepreguntoxd@gmail","quientepreguntoxj@gmail","1723723p","yopregunte");
-echo $usuario->getNombre();
+$usuario = new Usuario("Alan","Brito","calle falsa 123","quientepreguntoxd@gmail","quientepreguntoxj@gmail","1723723p","yopregunte");
+echo "nombre: ".$usuario->getNombre();
 echo "<br>";
-echo $usuario->getApellido();
+echo "Apellido: ".$usuario->getApellido();
 echo "<br>";
-echo $usuario->getDireccion();
+echo "Direccion: ".$usuario->getDireccion();
 echo "<br>";
-echo $usuario->getEmail();
+echo "Correo Electrónico: ".$usuario->getEmail();
 echo "<br>";
-echo $usuario->getConfirmacion();
+//echo $usuario->getConfirmacion();
+echo "DNI: ".$usuario->getDni();
 echo "<br>";
-echo $usuario->getDni();
-echo "<br>";
-echo $usuario->getContrasena();
+echo "Contraseña: ".$usuario->getContrasena();
 echo "<br>";
 $usuario->setNombre("David");
 $usuario->setApellido("León");
-$usuario->setDireccion("calle verdadera 321");
+$usuario->setDireccion("verdadera,123,toda,11207,Libertalia,Oceania");
 $usuario->setEmail("pues@si.es");
-$usuario->setConfirmacion("pues@no.es");
-$usuario->setDni("5574648r");
-$usuario->setConfirmacion("contrase");
-echo $usuario->getNombre();
+//$usuario->setConfirmacion("pues@no.es");
+$usuario->setDni("15765324T");
+$usuario->setContrasena("AmU987hp!");
 echo "<br>";
-echo $usuario->getApellido();
+//$usuario->setConfirmacion("contrase");
+echo "nombre: ".$usuario->getNombre();
 echo "<br>";
-echo $usuario->getDireccion();
+echo "Apellido: ".$usuario->getApellido();
 echo "<br>";
-echo $usuario->getEmail();
+echo "Direccion: ".$usuario->getDireccion();
 echo "<br>";
-echo $usuario->getConfirmacion();
+echo "Correo Electrónico: ".$usuario->getEmail();
 echo "<br>";
-echo $usuario->getDni();
+//echo $usuario->getConfirmacion();
+echo "DNI: ".$usuario->getDni();
 echo "<br>";
-echo $usuario->getContrasena();
+echo "Contraseña: ".$usuario->getContrasena();
 echo "<br>";
 
-echo "<br>";
 
 ?>
